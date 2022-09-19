@@ -869,9 +869,9 @@ p4_shadow:
 						up += 3;
 					}
 					else {
-						a1 = usrcp[0] - 0x50; if (a1 < 0) a1 = 0;
-						a2 = usrcp[1] - 0x50; if (a2 < 0) a2 = 0;
-						a3 = usrcp[2] - 0x50; if (a3 < 0) a3 = 0;
+						a1 = up[0] - 0x50; if (a1 < 0) a1 = 0;
+						a2 = up[1] - 0x50; if (a2 < 0) a2 = 0;
+						a3 = up[2] - 0x50; if (a3 < 0) a3 = 0;
 						*up++ = (unsigned char)a1; *up++ = (unsigned char)a2; *up++ = (unsigned char)a3;
 					}
 				}
