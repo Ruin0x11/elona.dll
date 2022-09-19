@@ -465,6 +465,8 @@ void DrawPolygonTex( POLY4 *lpPolyData )
 	dwDest = (DWORD_PTR)p;
 	dwScanData = (DWORD_PTR)scanData + (DWORD_PTR)(nStartY*sizeof(SCANDATA));
 
+	goto p4_shadow;
+
 	//	透明設定を判定
 	//
 	if ( lpPolyData->alpha != 0x100 ) {
@@ -826,6 +828,59 @@ p4_substract:
 	}
 	dwDest -= nDestWByte;
 	dwScanData += sizeof(SCANDATA);
+	}
+	return;
+
+p4_shadow:	
+	//
+	//	描画(SHADOW)[elona]
+	//
+	//
+
+	for (y = nStartY; y < nEndY; y++) {
+		minX = *(LPLONG)(dwScanData);
+		maxX = *(LPLONG)(dwScanData + 4);
+		if (maxX >= 0) {
+			tx = *(LPLONG)(dwScanData + 8);
+			ty = *(LPLONG)(dwScanData + 12);
+			tx <<= 16;
+			ty <<= 16;
+			if (maxX != minX) {
+				i2 = 0x10000 / (maxX - minX); // DWORD_PTR -> WORD 変換
+				tdx = ((*(LPLONG)(dwScanData + 16) - *(LPLONG)(dwScanData + 8))) * i2;
+				tdy = ((*(LPLONG)(dwScanData + 20) - *(LPLONG)(dwScanData + 12))) * i2;
+			}
+			else {
+				tdx = 0;
+				tdy = 0;
+			}
+			while (minX < 0) {
+				minX++;
+				tx += tdx;
+				ty += tdy;
+			}
+			maxX = min(nDestWidth, maxX);
+			up = (unsigned char*)(dwDest + minX * 3);
+			for (x = minX; x < maxX; x++) {
+				i2 = ((ty >> 16) * nTexWByte) + ((tx >> 16) * 3);
+				if (i2 < (int)dwTexSize) {
+					usrcp = (unsigned char*)lpTex + i2;
+					if ((usrcp[0] | usrcp[1] | usrcp[2]) == 0) {
+						up += 3;
+					}
+					else {
+						a1 = usrcp[0] - 0x50; if (a1 < 0) a1 = 0;
+						a2 = usrcp[1] - 0x50; if (a2 < 0) a2 = 0;
+						a3 = usrcp[2] - 0x50; if (a3 < 0) a3 = 0;
+						*up++ = (unsigned char)a1; *up++ = (unsigned char)a2; *up++ = (unsigned char)a3;
+					}
+				}
+				tx += tdx;
+				ty += tdy;
+			}
+		}
+		dwDest -= nDestWByte;
+		dwScanData += sizeof(SCANDATA);
 	}
 	return;
 }
