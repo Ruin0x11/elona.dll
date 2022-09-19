@@ -1,6 +1,6 @@
 # elona.dll
 
-Replacement for `elona.dll`, a compiled module used by Elona for drawing item shadows.o
+Replacement for `elona.dll`, a compiled module used by Elona for drawing item shadows.
 
 ## License
 
